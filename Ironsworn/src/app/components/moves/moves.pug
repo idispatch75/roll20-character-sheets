@@ -21,7 +21,7 @@ input(type='radio' class='hide-element full-move-list' name='attr_move_view' val
               +listButton(moveList[move.value])
               label.move
                 input(type='radio' class='hide-element selected-move' name='attr_selected_move' value=move.value)
-                div.move-name(data-i18n=move.name)=locals.translations[move.name]
+                .move-name(data-i18n=move.name)=locals.translations[move.name]
       else
         .move-group
           .move-group-title
@@ -31,7 +31,7 @@ input(type='radio' class='hide-element full-move-list' name='attr_move_view' val
               +listButton(moveList[move.value])
               label.move
                 input(type='radio' class='hide-element selected-move' name='attr_selected_move' value=move.value)
-                div.move-name(data-i18n=move.name)=locals.translations[move.name]
+                .move-name(data-i18n=move.name)=locals.translations[move.name]
 
 //- Move Details
 input(type='radio' class='hide-element move-preview' name='attr_move_view' value='2')
@@ -50,9 +50,11 @@ input(type='radio' class='hide-element move-preview' name='attr_move_view' value
             .move-list
               label.move
                 input(type='radio' class='hide-element' name='attr_selected_move' value=move.value)
-                div.move-name(data-i18n=move.name)=locals.translations[move.name]
+                .move-name(data-i18n=move.name)=locals.translations[move.name]
     
     //- Move Previews
-    .move-preview-container
-      each move in moveList
-        +moveBuilder(move, false)
+    .move-preview-sidebar
+      .move-preview-container
+        each move in moveList
+          +moveBuilder(move, false)
+      +assetsSummary()

@@ -1,6 +1,7 @@
 include ../../../data/stats
 include ./rolls
 include ./roll-shortcuts
+include ../../assets/assets
 
 mixin rollLabel
   label.roll-label(data-i18n='roll-btn')=locals.translations['roll-btn']
@@ -18,9 +19,9 @@ mixin preview(opts, misc)
   if misc.no_title
     div
   else
-    div.move-title.move-preview(data-i18n=opts.title)=locals.translations[opts.title]
+    .move-title.move-preview(data-i18n=opts.title)=locals.translations[opts.title]
   if opts.roll
-    div.roll-viewer
+    .roll-viewer
       if opts.progress
         +rollLabel
           +progressRoll(opts, 'roll-show')
@@ -51,14 +52,14 @@ mixin preview(opts, misc)
 
 mixin container(opts, misc)
   if misc.visibility
-    div.move-visible
+    .move-visible
       +preview(opts, misc)
         block
   else
     input(type='radio' name='attr_move_preview' class=`${opts.class} hide-element` value=opts.radio)
     div(class=`${opts.class} showhide move-preview-withroll-container`)
       - var moveStats = opts.class == 'companion-endure-harm' || opts.class == 'swear-an-iron-vow' ? "@{heart}" : opts.stat
-      div.move-roll-shortcuts-container
+      .move-roll-shortcuts-container
         if moveStats && opts.roll && !opts.rarity && !opts.discover_a_site && !opts.delve_the_depths
           - var rollableStats = [...stats, {lower: 'health', translationId: 'resource-health'}, {lower: 'spirit', translationId: 'resource-spirit'}, {lower: 'supply', translationId: 'resource-supply'}]
           each stat in rollableStats

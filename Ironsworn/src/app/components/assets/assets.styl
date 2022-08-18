@@ -168,25 +168,41 @@ input[type=checkbox].custom-asset-ability
   margin 0 12px 0px 12px
   std-font('Crimson Text')
 
-div
-  &.asset-ability
-    width 100%
-    height 100%
-    margin 0px 12px 6px 10px
-    ul
-      margin-left 15px
-      margin-bottom 0
-  &.assets
-    display block !important
-    text-align left
-    .repcontainer
-      display flex
-      flex-flow row wrap
-      padding 0.5em
-      std-font('Crimson Text')
-      justify-content space-evenly
-      .repitem
-        float left !important
+div.asset-ability
+  width 100%
+  height 100%
+  margin 0px 12px 6px 10px
+  ul
+    margin-left 15px
+    margin-bottom 0
+
+div.assets
+  display block !important
+  text-align left
+  .repcontainer
+    display flex
+    flex-flow row wrap
+    padding 0.5em
+    std-font('Crimson Text')
+    justify-content space-evenly
+    .repitem
+      float left !important
+
+fieldset.assets-summary~.repcontrol
+  display none
+
+input.show-hide:checked ~ div.asset-ability.show-hide
+  display block
+
+input.show-hide.asset-ability:checked
+  display block
+
+.asset-summary-header
+  text-align center
+  font-weight bold
+  text-transform uppercase
+  background-color #dfe0e2
+  border-bottom 1px solid #4c4d4f
 
 .asset-write-in
   margin-bottom 4px

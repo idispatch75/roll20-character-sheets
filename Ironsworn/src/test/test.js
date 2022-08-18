@@ -73,10 +73,18 @@ window.setAttrs = (attributeValues, isInit) => {
   for (const attribute of attributes) {
     // if the value changed
     if (attribute.currentValue !== attribute.newValue || isInit) {
-      // set the value of the input matching the attribute, which may be in a section
+      // set the value of the inputs matching the attribute, which may be in a section
       if (attribute.sectionName) {
-        const repItem = $(`.repitem[data-reprowid="${attribute.rowId}"]`);
-        setValue($(repItem));
+        const repContainers = $(`.repcontainer[data-groupname="${attribute.sectionName}"]`);
+        repContainers.each(function () {
+          const repContainer = $(this);
+          let repItem = $(`.repitem[data-reprowid="${attribute.rowId}"]`, repContainer);
+          if (repItem.length == 0) {
+            repItem = createSectionRow(repContainer, attribute.rowId);
+          }
+
+          setValue(repItem);
+        });
       } else {
         setValue($('body'));
       }
@@ -85,7 +93,7 @@ window.setAttrs = (attributeValues, isInit) => {
         // set input value
         const inputName = ATTR_PREFIX + attribute.shortName.toLowerCase();
 
-        console.log(`Updating input ${inputName} with value ${attribute.newValue}`);
+        console.log(`Updating input ${inputName}${attribute.sectionName ? ' in ' + attribute.sectionName + '_' + attribute.rowId : ''} with value ${attribute.newValue}`);
 
         let input = inputParent.find(`input[name='${inputName}'], select[name='${inputName}']`);
         input.val([attribute.newValue]);
@@ -149,6 +157,46 @@ function createAttribute(attributeName) {
   return attribute;
 }
 
+function createSectionRow(repContainer, rowId) {
+  const sectionName = repContainer.attr('data-groupname');
+
+  // add a new rep item with the content of the fieldset
+  const repItem = $(`<div class="repitem" data-reprowid="${rowId}">`);
+  const itemControl = $('<div class="itemcontrol">');
+  const deleteButton = $('<button class="btn btn-danger pictos repcontrol_del">#</button>');
+  itemControl.append(deleteButton);
+  repItem.append(itemControl);
+
+  const fieldset = repContainer.prev();
+  repItem.append(fieldset.html());
+
+  // make attribute names unique for radio button to allow proper radio behavior
+  repItem.find(`input[name^="${ATTR_PREFIX}"][type="radio"]`).each(function () {
+    const input = $(this);
+    const attributeName = getInputAttributeName(input);
+    input.attr('name', `${ATTR_PREFIX}${rowId}_${sectionName}_${attributeName}`);
+    input.attr('data-attrname', attributeName);
+  });
+
+  repContainer.append(repItem);
+
+  // instrument the inputs for the new item
+  instrumentInputs(repItem);
+
+  deleteButton.click(e => {
+    const button = $(e.target);
+
+    // delete all the rows in the document with the same section and ID
+    const repItem = button.parents('.repitem');
+    const rowId = repItem.attr('data-reprowid');
+    const sectionName = repItem.parent('.repcontainer').attr('data-groupname');
+
+    $(`[data-groupname="${sectionName}"]`).children(`[data-reprowid="${rowId}"]`).remove();
+  });
+
+  return repItem;
+}
+
 window.generateRowID = () => {
   let result = ROWID_PREFIX;
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -184,10 +232,8 @@ $(document).ready(function () {
 
     editButton.click(e => {
       const button = $(e.target);
-      const sectionName = getButtonSectionName(button);
 
-      const repControl = button.parent();
-      const repContainer = repControl.siblings(`[data-groupname="${sectionName}"]`);
+      const repContainer = button.parent().prev();
       const isEditMode = repContainer.hasClass('editmode');
 
       if (isEditMode) {
@@ -203,41 +249,11 @@ $(document).ready(function () {
 
     addButton.click(e => {
       const button = $(e.target);
-      const sectionName = getButtonSectionName(button);
 
-      // add a new rep item with the content of the fieldset
-      const rowId = generateRowID();
-      const repItem = $(`<div class="repitem" data-reprowid="${rowId}">`);
-      const itemControl = $('<div class="itemcontrol">');
-      const deleteButton = $('<button class="btn btn-danger pictos repcontrol_del">#</button>');
-      itemControl.append(deleteButton);
-      repItem.append(itemControl);
-
-      const fieldset = $('fieldset.' + sectionName);
-      repItem.append(fieldset.html());
-      const repContainer = button.parent().siblings(`[data-groupname="${sectionName}"]`);
-      repContainer.append(repItem);
-
-      // make attribute names unique for radio button to allow proper radio behavior
-      repItem.find(`input[name^="${ATTR_PREFIX}"][type="radio"]`).each(function () {
-        const input = $(this);
-        const attributeName = getInputAttributeName(input);
-        input.attr('name', `${ATTR_PREFIX}${rowId}_${sectionName}_${attributeName}`);
-        input.attr('data-attrname', attributeName);
-      });
-
-      // instrument the inputs for the new item
-      instrumentInputs(repItem);
-
-      deleteButton.click(e => {
-        const button = $(e.target);
-        button.parents('.repitem').remove();
-      });
+      // add a new rep item
+      const repContainer = button.parent().prev();
+      createSectionRow(repContainer, generateRowID());
     });
-
-    function getButtonSectionName(button) {
-      return button.parent().attr('data-groupname');
-    }
   });
 
   // initialize attributes
@@ -339,7 +355,7 @@ function instrumentInputs(root) {
       function replaceAttributes(rollSpec) {
         let hasMatches = false;
 
-        for (const group of rollSpec.matchAll(/@\{([\w-]+)\}/g)) { // this is an iterator, not a standard array: testing "length" is not possible
+        for (const group of rollSpec.matchAll(/@{[^}]+}/g)) { // this is an iterator, not a standard array: testing "length" is not possible
           hasMatches = true;
           let attributeFullName = group[1];
           if (currentRepeatingContext) {

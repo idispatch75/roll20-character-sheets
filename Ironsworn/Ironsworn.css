@@ -1618,7 +1618,7 @@
   text-align: right !important;
   padding-right: 1em;
 }
-.charsheet .move-preview-container {
+.charsheet .move-preview-sidebar {
   width: 64%;
 }
 .charsheet .move-preview-container p {
@@ -2462,6 +2462,22 @@
 }
 .charsheet div.assets .repcontainer .repitem {
   float: left !important;
+}
+.charsheet fieldset.assets-summary~.repcontrol {
+  display: none;
+}
+.charsheet input.show-hide:checked ~ div.asset-ability.show-hide {
+  display: block;
+}
+.charsheet input.show-hide.asset-ability:checked {
+  display: block;
+}
+.charsheet .asset-summary-header {
+  text-align: center;
+  font-weight: bold;
+  text-transform: uppercase;
+  background-color: #dfe0e2;
+  border-bottom: 1px solid #4c4d4f;
 }
 .charsheet .asset-write-in {
   margin-bottom: 4px;
