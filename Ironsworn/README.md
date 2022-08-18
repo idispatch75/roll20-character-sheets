@@ -59,6 +59,10 @@ const initAttributes = {
 }; // don't forget the semi-colon
 ```
 
+By default fieldsets are hidden and you must add items to repeating sections to view your html.
+You can change this by adding `const showFieldsets = true;` to `test/attributes.js`.
+Interaction logic is not functional though.
+
 To build for testing, use `npm run gulp:test-watch`.
 This compiles `test/Ironsworn.html` and `Ironsworn.css`.
 You can open `test/Ironsworn.html` in your browser.
@@ -105,8 +109,6 @@ There is a `test/test-roll-templates-specs` directory that contains specs for th
 You can copy/paste them to `roll-template-specs.js` if you make changes to one of the roll template.
 
 ### Limitations
-- Inputs in repeating sections (fieldsets) may not be handled properly
-- The repeating sections of the Shared sheet are not handled at all
 - Rolls are not interpreted, you can check your macros on the site in the chat
 - No i18n
 

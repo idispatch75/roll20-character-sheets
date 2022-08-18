@@ -23,20 +23,140 @@ window.on = function (eventNames, fn) {
   });
 };
 
+// attributes handling
 const attributeStore = { // stores the attribute values, backend for getAttrs/setAttrs
-  setValue: function (attributeName, value) {
-    attributeName = attributeName.toLowerCase();
-    this[attributeName] = value;
+  setValue: function (attributeFullName, value) {
+    attributeFullName = attributeFullName.toLowerCase();
+    this[attributeFullName] = value;
   },
 
-  getValue: function (attributeName) {
-    attributeName = attributeName.toLowerCase();
-    if (this.hasOwnProperty(attributeName)) {
-      return this[attributeName];
+  getValue: function (attributeFullName) {
+    attributeFullName = attributeFullName.toLowerCase();
+    if (this.hasOwnProperty(attributeFullName)) {
+      return this[attributeFullName];
     } else {
       return undefined;
     }
   }
+};
+
+let currentRepeatingContext = undefined; // stores the repeating section info when an input change is triggered
+
+window.getAttrs = (attributeNames, fn) => {
+  const values = {};
+  for (attributeName of attributeNames) {
+    const attribute = createAttribute(attributeName);
+    values[attributeName] = attributeStore.getValue(attribute.fullName);
+  }
+
+  fn(values);
+}
+
+window.setAttrs = (attributeValues, isInit) => {
+  const attributes = [];
+
+  for (const attributeName in attributeValues) {
+    // build attribute
+    const attribute = createAttribute(attributeName);
+    attribute.currentValue = attributeStore.getValue(attribute.fullName);
+    attribute.newValue = attributeValues[attributeName];
+
+    attributes.push(attribute);
+
+    // store the new value
+    attributeStore.setValue(attribute.fullName, attribute.newValue);
+  }
+
+  console.log(`Stored attributes: ${JSON.stringify(attributeValues)} as ${JSON.stringify(attributes.map(_ => _.fullName))}`);
+
+  // react to value changes
+  for (const attribute of attributes) {
+    // if the value changed
+    if (attribute.currentValue !== attribute.newValue || isInit) {
+      // set the value of the input matching the attribute, which may be in a section
+      if (attribute.sectionName) {
+        const repItem = $(`.repitem[data-reprowid="${attribute.rowId}"]`);
+        setValue($(repItem));
+      } else {
+        setValue($('body'));
+      }
+
+      function setValue(inputParent) {
+        // set input value
+        const inputName = ATTR_PREFIX + attribute.shortName.toLowerCase();
+
+        console.log(`Updating input ${inputName} with value ${attribute.newValue}`);
+
+        let input = inputParent.find(`input[name='${inputName}'], select[name='${inputName}']`);
+        input.val([attribute.newValue]);
+
+        // set span text
+        let span = inputParent.find(`span[name='${inputName}']`);
+        span.text(attribute.newValue);
+      }
+
+      // invoke event handlers
+      const eventInfo = {
+        previousValue: attribute.currentValue,
+        newValue: attribute.newValue,
+        sourceAttribute: attribute.fullName
+      }
+      invokeEvent(`change:${attribute.shortName}`);
+      //invokeEvent(`change:${attribute.shortName}_max`);
+      if (attribute.sectionName) {
+        invokeEvent(`change:${attribute.sectionName}`);
+        invokeEvent(`change:${attribute.sectionName}:${attribute.shortName}`);
+      }
+
+      function invokeEvent(eventName) {
+        eventName = eventName.toLowerCase();
+
+        if (eventHandlers.hasOwnProperty(eventName)) {
+          console.log(`Invoking handlers for event ${eventName} with ${JSON.stringify(eventInfo)}`);
+          eventHandlers[eventName].forEach(function (handler) { handler(eventInfo) });
+        }
+      }
+    }
+  }
+};
+
+function createAttribute(attributeName) {
+  // supported names are:
+  // <attribute_name>
+  // <sectionName>_<attributeShortname> with sectionName = repeating_<any>
+  // <sectionName>_<rowId>_<attributeShortname> with sectionName = repeating_<any> and rowId = rowid<any>
+  const attribute = {};
+  const nameParts = attributeName.split('_');
+  if (attributeName.startsWith(REPEATING_PREFIX)) {
+    attribute.sectionName = nameParts[0] + '_' + nameParts[1];
+    if (nameParts[2].startsWith(ROWID_PREFIX)) {
+      attribute.rowId = nameParts[2];
+      attribute.shortName = nameParts.slice(3).join('_');
+    } else {
+      if (currentRepeatingContext.sectionName != attribute.sectionName) {
+        throw `The row ID must be specified when the section name is different from the call context: ${attributeName} vs ${currentRepeatingContext.sectionName}`;
+      }
+      attribute.rowId = currentRepeatingContext.rowId;
+      attribute.shortName = nameParts.slice(2).join('_');
+    }
+    attribute.fullName = `${attribute.sectionName}_${attribute.rowId}_${attribute.shortName}`;
+
+  } else {
+    attribute.shortName = attributeName;
+    attribute.fullName = attribute.shortName;
+  }
+
+  return attribute;
+}
+
+window.generateRowID = () => {
+  let result = ROWID_PREFIX;
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  for (let i = 0; i < 5; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
 };
 
 $(document).ready(function () {
@@ -46,14 +166,16 @@ $(document).ready(function () {
   // instrument fieldsets
   $('fieldset').each(function () {
     const fieldset = $(this);
-    fieldset.attr('style', 'display:none');
+    if (!showFieldsets) {
+      fieldset.hide();
+    }
 
-    const sectionId = fieldset.attr('class').split(' ').find(_ => _.startsWith(REPEATING_PREFIX));
+    const sectionName = fieldset.attr('class').split(' ').find(_ => _.startsWith(REPEATING_PREFIX));
 
     // setup container and controls
-    const repContainer = $(`<div class="repcontainer ui-sortable" data-groupname="${sectionId}">`);
+    const repContainer = $(`<div class="repcontainer ui-sortable" data-groupname="${sectionName}">`);
     fieldset.after(repContainer);
-    const repControl = $(`<div class="repcontrol" data-groupname="${sectionId}">`);
+    const repControl = $(`<div class="repcontrol" data-groupname="${sectionName}">`);
     const editButton = $('<button class="btn repcontrol_edit">Modify</button>');
     repControl.append(editButton);
     const addButton = $('<button class="btn repcontrol_add" style="display: inline-block;">+Add</button>');
@@ -62,10 +184,10 @@ $(document).ready(function () {
 
     editButton.click(e => {
       const button = $(e.target);
-      const sectionId = getButtonSectionId(button);
+      const sectionName = getButtonSectionName(button);
 
       const repControl = button.parent();
-      const repContainer = repControl.siblings(`[data-groupname="${sectionId}"]`);
+      const repContainer = repControl.siblings(`[data-groupname="${sectionName}"]`);
       const isEditMode = repContainer.hasClass('editmode');
 
       if (isEditMode) {
@@ -81,7 +203,7 @@ $(document).ready(function () {
 
     addButton.click(e => {
       const button = $(e.target);
-      const sectionId = getButtonSectionId(button);
+      const sectionName = getButtonSectionName(button);
 
       // add a new rep item with the content of the fieldset
       const rowId = generateRowID();
@@ -91,16 +213,16 @@ $(document).ready(function () {
       itemControl.append(deleteButton);
       repItem.append(itemControl);
 
-      const fieldset = $('fieldset.' + sectionId);
+      const fieldset = $('fieldset.' + sectionName);
       repItem.append(fieldset.html());
-      const repContainer = button.parent().siblings(`[data-groupname="${sectionId}"]`);
+      const repContainer = button.parent().siblings(`[data-groupname="${sectionName}"]`);
       repContainer.append(repItem);
 
       // make attribute names unique for radio button to allow proper radio behavior
       repItem.find(`input[name^="${ATTR_PREFIX}"][type="radio"]`).each(function () {
         const input = $(this);
         const attributeName = getInputAttributeName(input);
-        input.attr('name', `${ATTR_PREFIX}${rowId}_${sectionId}_${attributeName}`);
+        input.attr('name', `${ATTR_PREFIX}${rowId}_${sectionName}_${attributeName}`);
         input.attr('data-attrname', attributeName);
       });
 
@@ -113,19 +235,48 @@ $(document).ready(function () {
       });
     });
 
-    function getButtonSectionId(button) {
+    function getButtonSectionName(button) {
       return button.parent().attr('data-groupname');
     }
   });
+
+  // initialize attributes
+  setAttrs(initAttributes, true);
 });
 
 function instrumentInputs(root) {
   const inputSelector = `input[name^='${ATTR_PREFIX}'], select[name^='${ATTR_PREFIX}']`;
 
-  // handle changes for input and select
   $(inputSelector, root).each(function () {
     const input = $(this);
 
+    // exclude elements in a fieldset
+    if (input.parents('fieldset').length > 0) {
+      return;
+    }
+
+    // init the attributes values in the store
+    let attributeName = input.attr('data-attrname') ?? getInputAttributeName(input);
+
+    const repItem = input.parents('.repitem');
+    if (repItem.length > 0) {
+      const sectionName = repItem.parent().attr('data-groupname');
+      const rowId = repItem.attr('data-reprowid');
+      attributeName = `${sectionName}_${rowId}_${attributeName}`;
+    }
+    attributeName = attributeName.toLowerCase();
+
+    if (input.attr('type') == 'radio' || input.attr('type') == 'checkbox') {
+      if (input.prop('checked')) {
+        attributeStore.setValue(attributeName, input.val());
+      }
+    } else {
+      if (input.val() != '') {
+        attributeStore.setValue(attributeName, input.val());
+      }
+    }
+
+    // handle changes for input and select
     input.change(event => {
       // get the value
       let value;
@@ -141,11 +292,11 @@ function instrumentInputs(root) {
       const repItem = input.parents('.repitem');
       if (repItem.length > 0) {
         currentRepeatingContext = {
-          sectionId: repItem.parent().attr('data-groupname'),
+          sectionName: repItem.parent().attr('data-groupname'),
           rowId: repItem.attr('data-reprowid')
         }
 
-        attributeName = `${currentRepeatingContext.sectionId}_${currentRepeatingContext.rowId}_${attributeName}`;
+        attributeName = `${currentRepeatingContext.sectionName}_${currentRepeatingContext.rowId}_${attributeName}`;
 
       } else {
         currentRepeatingContext = undefined;
@@ -157,43 +308,50 @@ function instrumentInputs(root) {
     });
   });
 
-  // init the attributes values in the store
-  $(inputSelector, root).each(function () {
-    const input = $(this);
-
-    let attributeName = input.attr('data-attrname') ?? getInputAttributeName(input);
-
-    const repItem = input.parents('.repitem');
-    if (repItem.length > 0) {
-      const sectionId = repItem.parent().attr('data-groupname');
-      const rowId = repItem.attr('data-reprowid');
-      attributeName = `${sectionId}_${rowId}_${attributeName}`;
-    }
-    attributeName = attributeName.toLowerCase();
-
-    if (input.attr('type') == 'radio' || input.attr('type') == 'checkbox') {
-      if (input.prop('checked')) {
-        attributeStore.setValue(attributeName, input.val());
-      }
-    } else {
-      if (input.val() != '') {
-        attributeStore.setValue(attributeName, input.val());
-      }
-    }
-  });
-
   // handle rolls
   $("button[type='roll']", root).each(function () {
     const button = $(this);
+
+    // exclude elements in a fieldset
+    if (button.parents('fieldset').length > 0) {
+      return;
+    }
+
     button.click(() => {
       const firstSpaceIndex = button.val().indexOf(' ');
       let templateDef = button.val().substring(2, firstSpaceIndex - 1);
       const templateId = templateDef.split(':')[1];
 
       // replace attributes
+      const repItem = button.parents('.repitem');
+      if (repItem.length > 0) {
+        currentRepeatingContext = {
+          sectionName: repItem.parent().attr('data-groupname'),
+          rowId: repItem.attr('data-reprowid')
+        }
+      } else {
+        currentRepeatingContext = undefined;
+      }
+
       let rollSpec = button.val().substring(firstSpaceIndex);
-      for (const group of rollSpec.matchAll(/@\{([\w-]+)\}/g)) {
-        rollSpec = rollSpec.replace(group[0], attributeStore.getValue(group[1]) ?? '@' + group[1]);
+      rollSpec = replaceAttributes(rollSpec);
+
+      function replaceAttributes(rollSpec) {
+        let hasMatches = false;
+
+        for (const group of rollSpec.matchAll(/@\{([\w-]+)\}/g)) { // this is an iterator, not a standard array: testing "length" is not possible
+          hasMatches = true;
+          let attributeFullName = group[1];
+          if (currentRepeatingContext) {
+            attributeFullName = `${currentRepeatingContext.sectionName}_${currentRepeatingContext.rowId}_${attributeFullName}`;
+          }
+          rollSpec = rollSpec.replace(group[0], attributeStore.getValue(attributeFullName) ?? '@' + group[1]);
+        }
+        if (hasMatches) {
+          return replaceAttributes(rollSpec);
+        } else {
+          return rollSpec;
+        }
       }
 
       // show result
@@ -213,131 +371,6 @@ function instrumentInputs(root) {
     });
   });
 }
-
-// attributes handling
-let currentRepeatingContext = undefined; // stores the repeating section info when an input change is triggered
-
-window.getAttrs = (attributeNames, fn) => {
-  const values = {};
-  for (attributeName of attributeNames) {
-    const attribute = buildAttribute(attributeName);
-    values[attributeName] = attributeStore.getValue(attribute.fullName);
-  }
-
-  fn(values);
-}
-
-window.setAttrs = (attributeValues, isInit) => {
-  const attributes = [];
-
-  for (const attributeName in attributeValues) {
-    // build attribute
-    const attribute = buildAttribute(attributeName);
-    attribute.currentValue = attributeStore.getValue(attribute.fullName);
-    attribute.newValue = attributeValues[attributeName];
-
-    attributes.push(attribute);
-
-    // store the new value
-    attributeStore.setValue(attribute.fullName, attribute.newValue);
-  }
-
-  console.log('Stored attributes: ' + JSON.stringify(attributeValues));
-
-  // react to value changes
-  for (const attribute of attributes) {
-    // if the value changed
-    if (attribute.currentValue !== attribute.newValue || isInit) {
-      // set the value of the input matching the attribute, which may be in a section
-      if (attribute.sectionId) {
-        const repItem = $(`.repitem[data-reprowid="${attribute.rowId}"]`);
-        setValue($(repItem));
-      } else {
-        setValue($('body'));
-      }
-
-      function setValue(inputParent) {
-        // set input value
-        const inputName = ATTR_PREFIX + attribute.name.toLowerCase();
-
-        console.log(`Updating input ${inputName} with value ${attribute.newValue}`);
-
-        let input = inputParent.find(`input[name='${inputName}'], select[name='${inputName}']`);
-        input.val([attribute.newValue]);
-
-        // set span text
-        let span = inputParent.find(`span[name='${inputName}']`);
-        span.text(attribute.newValue);
-      }
-
-      // invoke event handlers
-      const eventInfo = {
-        previousValue: attribute.currentValue,
-        newValue: attribute.newValue,
-        sourceAttribute: attribute.fullName
-      }
-      invokeEvent(`change:${attribute.name}`);
-      invokeEvent(`change:${attribute.name}_max`);
-      if (attribute.sectionId) {
-        invokeEvent(`change:${attribute.sectionId}`);
-        invokeEvent(`change:${attribute.sectionId}:${attribute.name}`);
-      }
-
-      function invokeEvent(eventName) {
-        eventName = eventName.toLowerCase();
-
-        if (eventHandlers.hasOwnProperty(eventName)) {
-          console.log('Invoking handlers for event: ' + eventName);
-          eventHandlers[eventName].forEach(function (handler) { handler(eventInfo) });
-        }
-      }
-    }
-  }
-};
-
-function buildAttribute(attributeName) {
-  // supported names are:
-  // <attribute_name>
-  // repeating_<sectionId>_<attribute_name>
-  // repeating_<sectionId>_<rowId>_<attribute_name>
-  const attribute = {};
-  const nameParts = attributeName.split('_');
-  if (attributeName.startsWith(REPEATING_PREFIX)) {
-    attribute.sectionId = nameParts[0] + '_' + nameParts[1];
-    if (nameParts[2].startsWith(ROWID_PREFIX)) {
-      attribute.rowId = nameParts[2];
-      attribute.name = nameParts.slice(3).join('_');
-    } else {
-      if (currentRepeatingContext.sectionId != attribute.sectionId) {
-        console.error('The row ID must be specified when the section ID is different from the call context');
-      }
-      attribute.rowId = currentRepeatingContext.rowId;
-      attribute.name = nameParts.slice(2).join('_');
-    }
-    attribute.fullName = `${attribute.sectionId}_${attribute.rowId}_${attribute.name}`;
-
-  } else {
-    attribute.name = attributeName;
-    attribute.fullName = attribute.name;
-  }
-
-  return attribute;
-}
-
-window.generateRowID = () => {
-  let result = ROWID_PREFIX;
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const charactersLength = characters.length;
-  for (let i = 0; i < 12; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
-};
-
-// initialize attributes
-$(document).ready(function () {
-  setAttrs(initAttributes, true);
-});
 
 function getInputAttributeName(input) {
   return input.attr('name').substring(ATTR_PREFIX.length);
