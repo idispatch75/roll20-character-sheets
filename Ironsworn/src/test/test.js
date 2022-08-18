@@ -1,86 +1,132 @@
 const ATTR_PREFIX = 'attr_';
 const REPEATING_PREFIX = 'repeating_';
+const ROWID_PREFIX = 'rowid';
 
 // events handling
 const eventHandlers = {}; // stores the handlers for each sheet event: event_name => [handler]
 
-window.on = (eventNames, fn) => eventNames.split(' ').forEach(eventName => {
-  eventName = eventName.toLowerCase();
+window.on = function (eventNames, fn) {
+  eventNames.split(' ').forEach(eventName => {
+    eventName = eventName.toLowerCase();
 
-  let handlers;
-  if (!eventHandlers.hasOwnProperty(eventName)) {
-    handlers = [];
-    eventHandlers[eventName] = handlers;
-  } else {
-    handlers = eventHandlers[eventName];
-  }
-
-  console.log('Registering handler for event ' + eventName);
-
-  handlers.push(fn);
-});
-
-const attributeStore = {}; // stores the attribute values, backend for getAttrs/setAttrs
-
-$(document).ready(() => {
-  const inputSelector = `input[name^='${ATTR_PREFIX}'], select[name^='${ATTR_PREFIX}']`;
-
-  function isSharedSheetItem(item) {
-    // determines if an item belongs to the shared sheet,
-    // i.e. it has a parent with an input marking a shared page
-    if (item.siblings(`input[name='${ATTR_PREFIX}shared_page']`).length > 0) {
-      return true;
+    let handlers;
+    if (!eventHandlers.hasOwnProperty(eventName)) {
+      handlers = [];
+      eventHandlers[eventName] = handlers;
+    } else {
+      handlers = eventHandlers[eventName];
     }
 
-    const parent = item.parent();
-    if (parent.length > 0) {
-      return isSharedSheetItem(parent);
+    console.log('Registering handler for event ' + eventName);
+
+    handlers.push(fn);
+  });
+};
+
+const attributeStore = { // stores the attribute values, backend for getAttrs/setAttrs
+  setValue: function (attributeName, value) {
+    attributeName = attributeName.toLowerCase();
+    this[attributeName] = value;
+  },
+
+  getValue: function (attributeName) {
+    attributeName = attributeName.toLowerCase();
+    if (this.hasOwnProperty(attributeName)) {
+      return this[attributeName];
+    } else {
+      return undefined;
     }
-
-    return false;
   }
+};
 
-  // rename items that are in a fieldset (repeating section)
-  // attr_my_attr_name in section repeating_mysection => attr_repeating_mysection_my_attr_name
+$(document).ready(function () {
+  // instrument inputs
+  instrumentInputs($('body'));
+
+  // instrument fieldsets
   $('fieldset').each(function () {
     const fieldset = $(this);
-    const fieldsetId = fieldset.attr('class').split(' ').find(_ => _.startsWith(REPEATING_PREFIX));
+    fieldset.attr('style', 'display:none');
 
-    // exclude fieldsets that are for the shared sheet, because they have the same name as in the character sheet and it fucks up the system
-    // (having the same name is not supposed to be supported in roll20 either)
-    if (!isSharedSheetItem(fieldset)) {
-      fieldset.find(`${inputSelector}, span[name^='${ATTR_PREFIX}']`).each(function () {
+    const sectionId = fieldset.attr('class').split(' ').find(_ => _.startsWith(REPEATING_PREFIX));
+
+    // setup container and controls
+    const repContainer = $(`<div class="repcontainer ui-sortable" data-groupname="${sectionId}">`);
+    fieldset.after(repContainer);
+    const repControl = $(`<div class="repcontrol" data-groupname="${sectionId}">`);
+    const editButton = $('<button class="btn repcontrol_edit">Modify</button>');
+    repControl.append(editButton);
+    const addButton = $('<button class="btn repcontrol_add" style="display: inline-block;">+Add</button>');
+    repControl.append(addButton)
+    repContainer.after(repControl);
+
+    editButton.click(e => {
+      const button = $(e.target);
+      const sectionId = getButtonSectionId(button);
+
+      const repControl = button.parent();
+      const repContainer = repControl.siblings(`[data-groupname="${sectionId}"]`);
+      const isEditMode = repContainer.hasClass('editmode');
+
+      if (isEditMode) {
+        button.siblings('.repcontrol_add').show();
+        button.text('Modify');
+        repContainer.removeClass('editmode');
+      } else {
+        button.siblings('.repcontrol_add').hide();
+        button.text('Done');
+        repContainer.addClass('editmode');
+      }
+    });
+
+    addButton.click(e => {
+      const button = $(e.target);
+      const sectionId = getButtonSectionId(button);
+
+      // add a new rep item with the content of the fieldset
+      const rowId = generateRowID();
+      const repItem = $(`<div class="repitem" data-reprowid="${rowId}">`);
+      const itemControl = $('<div class="itemcontrol">');
+      const deleteButton = $('<button class="btn btn-danger pictos repcontrol_del">#</button>');
+      itemControl.append(deleteButton);
+      repItem.append(itemControl);
+
+      const fieldset = $('fieldset.' + sectionId);
+      repItem.append(fieldset.html());
+      const repContainer = button.parent().siblings(`[data-groupname="${sectionId}"]`);
+      repContainer.append(repItem);
+
+      // make attribute names unique for radio button to allow proper radio behavior
+      repItem.find(`input[name^="${ATTR_PREFIX}"][type="radio"]`).each(function () {
         const input = $(this);
-        const attributeName = `${fieldsetId}_${input.attr('name').substring(ATTR_PREFIX.length)}`;
-        input.attr('name', `${ATTR_PREFIX}${attributeName}`);
+        const attributeName = getInputAttributeName(input);
+        input.attr('name', `${ATTR_PREFIX}${rowId}_${sectionId}_${attributeName}`);
+        input.attr('data-attrname', attributeName);
       });
+
+      // instrument the inputs for the new item
+      instrumentInputs(repItem);
+
+      deleteButton.click(e => {
+        const button = $(e.target);
+        button.parents('.repitem').remove();
+      });
+    });
+
+    function getButtonSectionId(button) {
+      return button.parent().attr('data-groupname');
     }
   });
+});
 
-  // init the attributes values in the store
-  const inputsSelector = `input[name^='${ATTR_PREFIX}'], select[name^='${ATTR_PREFIX}']`;
-  $(inputsSelector).each(function () {
-    const input = $(this);
-
-    let attributeName = input.attr('name').substring(ATTR_PREFIX.length);
-    if (input.attr('type') == 'radio' || input.attr('type') == 'checkbox') {
-      if (input.prop('checked')) {
-        attributeStore[attributeName] = input.val();
-      }
-    } else {
-      if (input.val() != '') {
-        attributeStore[attributeName] = input.val();
-      }
-    }
-  });
+function instrumentInputs(root) {
+  const inputSelector = `input[name^='${ATTR_PREFIX}'], select[name^='${ATTR_PREFIX}']`;
 
   // handle changes for input and select
-  $(inputsSelector).each(function () {
+  $(inputSelector, root).each(function () {
     const input = $(this);
 
     input.change(event => {
-      const inputName = input.attr('name');
-
       // get the value
       let value;
       if (input.attr('type') === 'checkbox') {
@@ -89,16 +135,55 @@ $(document).ready(() => {
         value = event.target.value;
       }
 
-      console.log(`New value for input ${inputName}: ${value}`);
+      // store the value
+      let attributeName = input.attr('data-attrname') ?? getInputAttributeName(input);
 
-      // set the attribute value
-      let attributeName = inputName.substring(ATTR_PREFIX.length);
+      const repItem = input.parents('.repitem');
+      if (repItem.length > 0) {
+        currentRepeatingContext = {
+          sectionId: repItem.parent().attr('data-groupname'),
+          rowId: repItem.attr('data-reprowid')
+        }
+
+        attributeName = `${currentRepeatingContext.sectionId}_${currentRepeatingContext.rowId}_${attributeName}`;
+
+      } else {
+        currentRepeatingContext = undefined;
+      }
+
+      console.log(`New value for attribute ${attributeName}: ${value}`);
+
       setAttrs({ [`${attributeName}`]: value });
     });
   });
 
+  // init the attributes values in the store
+  $(inputSelector, root).each(function () {
+    const input = $(this);
+
+    let attributeName = input.attr('data-attrname') ?? getInputAttributeName(input);
+
+    const repItem = input.parents('.repitem');
+    if (repItem.length > 0) {
+      const sectionId = repItem.parent().attr('data-groupname');
+      const rowId = repItem.attr('data-reprowid');
+      attributeName = `${sectionId}_${rowId}_${attributeName}`;
+    }
+    attributeName = attributeName.toLowerCase();
+
+    if (input.attr('type') == 'radio' || input.attr('type') == 'checkbox') {
+      if (input.prop('checked')) {
+        attributeStore.setValue(attributeName, input.val());
+      }
+    } else {
+      if (input.val() != '') {
+        attributeStore.setValue(attributeName, input.val());
+      }
+    }
+  });
+
   // handle rolls
-  $("button[type='roll']").each(function () {
+  $("button[type='roll']", root).each(function () {
     const button = $(this);
     button.click(() => {
       const firstSpaceIndex = button.val().indexOf(' ');
@@ -107,8 +192,8 @@ $(document).ready(() => {
 
       // replace attributes
       let rollSpec = button.val().substring(firstSpaceIndex);
-      for (const group of rollSpec.matchAll(/@\{(\w+)\}/g)) {
-        rollSpec = rollSpec.replace(group[0], attributeStore[group[1]] ?? '@' + group[1]);
+      for (const group of rollSpec.matchAll(/@\{([\w-]+)\}/g)) {
+        rollSpec = rollSpec.replace(group[0], attributeStore.getValue(group[1]) ?? '@' + group[1]);
       }
 
       // show result
@@ -127,101 +212,133 @@ $(document).ready(() => {
       console.log(`$\{${templateDef}\}${rollSpec}`);
     });
   });
-});
+}
 
 // attributes handling
-function getAttributeValue(attributeName) {
-  if (attributeStore.hasOwnProperty(attributeName)) {
-    return attributeStore[attributeName];
-  } else {
-    return undefined;
-  }
-}
+let currentRepeatingContext = undefined; // stores the repeating section info when an input change is triggered
 
 window.getAttrs = (attributeNames, fn) => {
   const values = {};
-  for (let i = 0; i < attributeNames.length; i++) {
-    const attributeName = attributeNames[i];
-
-    values[attributeName] = getAttributeValue(attributeName);
+  for (attributeName of attributeNames) {
+    const attribute = buildAttribute(attributeName);
+    values[attributeName] = attributeStore.getValue(attribute.fullName);
   }
 
   fn(values);
 }
 
-window.setAttrs = (attributes, isInit) => {
-  // cache previous values
-  const previousValues = {};
-  for (const attributeName in attributes) {
-    previousValues[attributeName] = getAttributeValue(attributeName);
+window.setAttrs = (attributeValues, isInit) => {
+  const attributes = [];
+
+  for (const attributeName in attributeValues) {
+    // build attribute
+    const attribute = buildAttribute(attributeName);
+    attribute.currentValue = attributeStore.getValue(attribute.fullName);
+    attribute.newValue = attributeValues[attributeName];
+
+    attributes.push(attribute);
+
+    // store the new value
+    attributeStore.setValue(attribute.fullName, attribute.newValue);
   }
 
-  // store new values
-  Object.assign(attributeStore, attributes);
-
-  console.log('Stored attributes: ' + JSON.stringify(attributes));
+  console.log('Stored attributes: ' + JSON.stringify(attributeValues));
 
   // react to value changes
-  for (const attributeName in attributes) {
-    const attributeValue = attributes[attributeName];
-    const eventInfo = {
-      previousValue: previousValues[attributeName],
-      newValue: attributeValue,
-      sourceAttribute: attributeName
-    }
-
+  for (const attribute of attributes) {
     // if the value changed
-    if (eventInfo.previousValue !== eventInfo.newValue || isInit) {
-      const fieldsetId = attributeName.startsWith(REPEATING_PREFIX)
-        ? attributeName.substring(0, attributeName.indexOf('_', REPEATING_PREFIX.length))
-        : null;
-
-      // set the value of the input matching the attribute, which may be in a fieldset
-      if (fieldsetId) {
-        const fieldsets = $(`fieldset.${fieldsetId}`);
-        for (let i = 0; i < fieldsets.length; i++) {
-          const fieldset = fieldsets['' + i];
-
-          setValue($(fieldset));
-        }
+    if (attribute.currentValue !== attribute.newValue || isInit) {
+      // set the value of the input matching the attribute, which may be in a section
+      if (attribute.sectionId) {
+        const repItem = $(`.repitem[data-reprowid="${attribute.rowId}"]`);
+        setValue($(repItem));
       } else {
         setValue($('body'));
       }
 
       function setValue(inputParent) {
         // set input value
-        const inputName = ATTR_PREFIX + attributeName.toLowerCase();
+        const inputName = ATTR_PREFIX + attribute.name.toLowerCase();
 
-        console.log(`Updating input ${inputName} with value ${attributeValue}`);
+        console.log(`Updating input ${inputName} with value ${attribute.newValue}`);
 
         let input = inputParent.find(`input[name='${inputName}'], select[name='${inputName}']`);
-        input.val([attributeValue]);
+        input.val([attribute.newValue]);
 
         // set span text
-        let span = inputParent.find(`span[name='${ATTR_PREFIX}${attributeName.toLowerCase()}']`);
-        span.text(attributeValue);
+        let span = inputParent.find(`span[name='${inputName}']`);
+        span.text(attribute.newValue);
       }
 
       // invoke event handlers
-      let eventName;
-      if (fieldsetId) {
-        const eventAttributeName = attributeName.substring(fieldsetId.length + 1);
-        eventName = `change:${fieldsetId}:${eventAttributeName}`;
-      } else {
-        eventName = `change:${attributeName}`;
+      const eventInfo = {
+        previousValue: attribute.currentValue,
+        newValue: attribute.newValue,
+        sourceAttribute: attribute.fullName
       }
-      eventName = eventName.toLowerCase();
+      invokeEvent(`change:${attribute.name}`);
+      invokeEvent(`change:${attribute.name}_max`);
+      if (attribute.sectionId) {
+        invokeEvent(`change:${attribute.sectionId}`);
+        invokeEvent(`change:${attribute.sectionId}:${attribute.name}`);
+      }
 
-      if (eventHandlers.hasOwnProperty(eventName)) {
-        console.log('Invoking handlers for event: ' + eventName);
+      function invokeEvent(eventName) {
+        eventName = eventName.toLowerCase();
 
-        eventHandlers[eventName].forEach(handler => handler(eventInfo));
+        if (eventHandlers.hasOwnProperty(eventName)) {
+          console.log('Invoking handlers for event: ' + eventName);
+          eventHandlers[eventName].forEach(function (handler) { handler(eventInfo) });
+        }
       }
     }
   }
 };
 
+function buildAttribute(attributeName) {
+  // supported names are:
+  // <attribute_name>
+  // repeating_<sectionId>_<attribute_name>
+  // repeating_<sectionId>_<rowId>_<attribute_name>
+  const attribute = {};
+  const nameParts = attributeName.split('_');
+  if (attributeName.startsWith(REPEATING_PREFIX)) {
+    attribute.sectionId = nameParts[0] + '_' + nameParts[1];
+    if (nameParts[2].startsWith(ROWID_PREFIX)) {
+      attribute.rowId = nameParts[2];
+      attribute.name = nameParts.slice(3).join('_');
+    } else {
+      if (currentRepeatingContext.sectionId != attribute.sectionId) {
+        console.error('The row ID must be specified when the section ID is different from the call context');
+      }
+      attribute.rowId = currentRepeatingContext.rowId;
+      attribute.name = nameParts.slice(2).join('_');
+    }
+    attribute.fullName = `${attribute.sectionId}_${attribute.rowId}_${attribute.name}`;
+
+  } else {
+    attribute.name = attributeName;
+    attribute.fullName = attribute.name;
+  }
+
+  return attribute;
+}
+
+window.generateRowID = () => {
+  let result = ROWID_PREFIX;
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  for (let i = 0; i < 12; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+};
+
 // initialize attributes
-$(document).ready(() => {
+$(document).ready(function () {
   setAttrs(initAttributes, true);
 });
+
+function getInputAttributeName(input) {
+  return input.attr('name').substring(ATTR_PREFIX.length);
+}
