@@ -1,6 +1,7 @@
 include ./asset-custom
 include ./asset-builder
 include ./asset-summary-builder
+include ./asset-custom
 
 mixin assets()
   .assets
@@ -26,10 +27,11 @@ mixin assets()
         +customAssets
 
 mixin assetsSummary()
-  .assets
+  .assets.assets-summary
     fieldset.repeating_assets.fixed-width.assets-summary
-      .asset
+      .asset.asset-summary
         +companionSummaryBuilder
         +pathSummaryBuilder
         +combatTalentSummaryBuilder
         +ritualSummaryBuilder
+        +customSummaryBuilder

@@ -95,7 +95,7 @@ window.setAttrs = (attributeValues, isInit) => {
 
         console.log(`Updating input ${inputName}${attribute.sectionName ? ' in ' + attribute.sectionName + '_' + attribute.rowId : ''} with value ${attribute.newValue}`);
 
-        let input = inputParent.find(`input[name='${inputName}'], select[name='${inputName}']`);
+        let input = inputParent.find(`input[name='${inputName}'], select[name='${inputName}'], textarea[name='${inputName}']`);
         input.val([attribute.newValue]);
 
         // set span text
@@ -260,8 +260,9 @@ $(document).ready(function () {
   setAttrs(initAttributes, true);
 });
 
+/** Initializes the store with the current input values and sets up the "change" event. */
 function instrumentInputs(root) {
-  const inputSelector = `input[name^='${ATTR_PREFIX}'], select[name^='${ATTR_PREFIX}']`;
+  const inputSelector = `input[name^='${ATTR_PREFIX}'], select[name^='${ATTR_PREFIX}'], textarea[name^='${ATTR_PREFIX}']`;
 
   $(inputSelector, root).each(function () {
     const input = $(this);
@@ -324,7 +325,7 @@ function instrumentInputs(root) {
     });
   });
 
-  // handle rolls
+  // handle roll buttons: display a popup+log with processed roll value
   $("button[type='roll']", root).each(function () {
     const button = $(this);
 

@@ -66,6 +66,7 @@ Interaction logic is not functional though.
 To build for testing, use `npm run gulp:test-watch`.
 This compiles `test/Ironsworn.html` and `Ironsworn.css`.
 You can open `test/Ironsworn.html` in your browser.
+Beware that `gulp:test-watch` does not react to changes to `translation.json` (if you add it to the tracked files, recompilation triggers but changes are not taken into account. Probably related to how the pug plugin works).
 
 ### Test the roll templates
 You must create a file `test/roll-template-specs.js` that contains the list of template variations you want to display at the same time (to test different input values at the same time).

@@ -5,8 +5,8 @@ include ./mixins/move-builder
 
 
 //- Search Bar
-input(type='radio' class='hide-element full-move-list' name='attr_move_view' value='1' checked)
-.full-move-list.showhide
+input(type='radio' class='hide-element move-full-list' name='attr_move_view' value='1' checked)
+.move-full-list.showhide
   //- List of Moves
   .move-container
     input(type='radio' class='hide-element' name='attr_selected_move')
@@ -57,4 +57,5 @@ input(type='radio' class='hide-element move-preview' name='attr_move_view' value
       .move-preview-container
         each move in moveList
           +moveBuilder(move, false)
+      h3.move-assets-summary-header(data-i18n='nav-assets')=locals.translations['nav-assets']
       +assetsSummary()

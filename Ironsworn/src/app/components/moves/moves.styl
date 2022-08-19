@@ -176,6 +176,7 @@ span
   width 64%
 
 .move-preview-container
+  min-height 400px
   p
     font-size 15px
     margin 0
@@ -184,6 +185,13 @@ span
     font-size 15px
   li
     font-size 15px
+
+.move-assets-summary-header
+  background #4c4d4f
+  color #fff
+  padding-top 0.2em
+  padding-bottom 0.1em
+  margin-top 10px
 
 .move-preview-withroll-container
   display flex
@@ -362,7 +370,7 @@ move-roll-shortcut-ask-the-oracle()
       color #fff !important
 
 input.move-preview:checked ~ div.move-preview,
-input.full-move-list:checked ~ div.full-move-list
+input.move-full-list:checked ~ div.move-full-list
   show-hide()
 
 input[type=radio].face-danger:checked ~ div.face-danger,
