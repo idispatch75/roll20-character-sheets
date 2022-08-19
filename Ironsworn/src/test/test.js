@@ -384,7 +384,7 @@ function instrumentInputs(root) {
 
       window.alert(JSON.stringify(templateSpec, undefined, 2));
       console.log(JSON.stringify(templateSpec, undefined, 2));
-      console.log(`$\{${templateDef}\}${rollSpec}`);
+      console.log(`&\{${templateDef}\}${rollSpec}`);
     });
   });
 }
