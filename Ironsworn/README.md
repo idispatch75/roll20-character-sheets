@@ -39,7 +39,7 @@ It is not meant to replace a validation on the Sheet sandbox but it may be usefu
 
 ### Test the character sheet
 You must create a file `test/attributes.js` that contains the initial values of your attributes.
-It may be an empty object if you do not want to initialize some values.
+It may be an empty object if you do not want to initialize any value.
 For instance:
 ``` js
 const initAttributes = {
@@ -58,10 +58,8 @@ const initAttributes = {
   momentum_reset: 2
 }; // don't forget the semi-colon
 ```
-
-By default fieldsets are hidden and you must add items to repeating sections to view your html.
-You can change this by adding `const showFieldsets = true;` to `test/attributes.js`.
-Interaction logic is not functional though.
+You can also create repeating section items by initializing at least one of their attributes.
+You must specify the row ID, which must start with `rowid`, e.g. `repeating_progress_rowid0012_name`.
 
 To build for testing, use `npm run gulp:test-watch`.
 This compiles `test/Ironsworn.html` and `Ironsworn.css`.

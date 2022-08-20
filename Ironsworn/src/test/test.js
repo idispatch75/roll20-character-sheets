@@ -76,10 +76,10 @@ window.setAttrs = (attributeValues, isInit) => {
       // set the value of the inputs matching the attribute, which may be in a section
       if (attribute.sectionName) {
         const repContainers = $(`.repcontainer[data-groupname="${attribute.sectionName}"]`);
-        repContainers.each(function () {
+        repContainers.each(function () { // loop on all matching containers to support fieldsets with same name
           const repContainer = $(this);
           let repItem = $(`.repitem[data-reprowid="${attribute.rowId}"]`, repContainer);
-          if (repItem.length == 0) {
+          if (repItem.length == 0) { // if the specified row does not exist create the item with this row ID
             repItem = createSectionRow(repContainer, attribute.rowId);
           }
 
@@ -104,6 +104,17 @@ window.setAttrs = (attributeValues, isInit) => {
       }
 
       // invoke event handlers
+      if (isInit) { // on init set the context, otherwise event handlers may fail
+        if (attribute.sectionName) {
+          currentRepeatingContext = {
+            sectionName: attribute.sectionName,
+            rowId: attribute.rowId
+          };
+        } else {
+          currentRepeatingContext = undefined;
+        }
+      }
+
       const eventInfo = {
         previousValue: attribute.currentValue,
         newValue: attribute.newValue,
@@ -124,6 +135,14 @@ window.setAttrs = (attributeValues, isInit) => {
           eventHandlers[eventName].forEach(function (handler) { handler(eventInfo) });
         }
       }
+    }
+  }
+
+  // on init, store again because creating repeating section items initializes the items values,
+  // which overwrites initialization values
+  if (isInit) {
+    for (const attribute of attributes) {
+      attributeStore.setValue(attribute.fullName, attribute.newValue);
     }
   }
 };
@@ -214,9 +233,7 @@ $(document).ready(function () {
   // instrument fieldsets
   $('fieldset').each(function () {
     const fieldset = $(this);
-    if (!showFieldsets) {
-      fieldset.hide();
-    }
+    fieldset.hide();
 
     const sectionName = fieldset.attr('class').split(' ').find(_ => _.startsWith(REPEATING_PREFIX));
 
@@ -356,7 +373,7 @@ function instrumentInputs(root) {
       function replaceAttributes(rollSpec) {
         let hasMatches = false;
 
-        for (const group of rollSpec.matchAll(/@{[^}]+}/g)) { // this is an iterator, not a standard array: testing "length" is not possible
+        for (const group of rollSpec.matchAll(/@{([^}]+)}/g)) { // this is an iterator, not a standard array: testing "length" is not possible
           hasMatches = true;
           let attributeFullName = group[1];
           if (currentRepeatingContext) {
