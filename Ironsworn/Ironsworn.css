@@ -2587,6 +2587,7 @@
 .charsheet .asset-track-wrapper {
   margin: 10px;
   display: flex;
+  justify-content: center;
 }
 .charsheet .asset-track-box {
   width: 100%;
@@ -2598,6 +2599,7 @@
   background: transparent;
   border: 2px solid #4c4d4f;
   padding: 5px;
+  max-width: 40px;
 }
 .charsheet .asset-track-wrapper-wordy {
   text-transform: uppercase;

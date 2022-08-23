@@ -91,11 +91,12 @@ window.setAttrs = (attributeValues, isInit) => {
 
       function setValue(inputParent) {
         // set input value
-        const inputName = ATTR_PREFIX + attribute.shortName.toLowerCase();
+        const shortName = attribute.shortName.toLowerCase();
+        const inputName = ATTR_PREFIX + shortName;
 
         console.log(`Updating input ${inputName}${attribute.sectionName ? ' in ' + attribute.sectionName + '_' + attribute.rowId : ''} with value ${attribute.newValue}`);
 
-        let input = inputParent.find(`input[name='${inputName}'], select[name='${inputName}'], textarea[name='${inputName}']`);
+        let input = inputParent.find(`input[name='${inputName}'], input[data-attrname='${shortName}'], select[name='${inputName}'], textarea[name='${inputName}']`);
         input.val([attribute.newValue]);
 
         // set span text
