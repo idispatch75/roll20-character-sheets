@@ -407,8 +407,94 @@ function instrumentInputs(root) {
       navigator.clipboard.writeText(rollValue);
     });
   });
+});
+
+// attributes handling
+function getAttributeValue(attributeName) {
+  if (attributeStore.hasOwnProperty(attributeName)) {
+    return attributeStore[attributeName];
+  } else {
+    return undefined;
+  }
 }
 
-function getInputAttributeName(input) {
-  return input.attr('name').substring(ATTR_PREFIX.length);
+window.getAttrs = (attributeNames, fn) => {
+  const values = {};
+  for (let i = 0; i < attributeNames.length; i++) {
+    const attributeName = attributeNames[i];
+
+    values[attributeName] = getAttributeValue(attributeName);
+  }
+
+  fn(values);
 }
+
+window.setAttrs = (attributes, isInit) => {
+  // cache previous values
+  const previousValues = {};
+  for (const attributeName in attributes) {
+    previousValues[attributeName] = getAttributeValue(attributeName);
+  }
+
+  // store new values
+  Object.assign(attributeStore, attributes);
+
+  console.log('Stored attributes: ' + JSON.stringify(attributes));
+
+  // react to value changes
+  for (const attributeName in attributes) {
+    const attributeValue = attributes[attributeName];
+    const eventInfo = {
+      previousValue: previousValues[attributeName],
+      newValue: attributeValue,
+      sourceAttribute: attributeName
+    }
+
+    // if the value changed
+    if (eventInfo.previousValue !== eventInfo.newValue || isInit) {
+      const fieldsetId = attributeName.startsWith(REPEATING_PREFIX)
+        ? attributeName.substring(0, attributeName.indexOf('_', REPEATING_PREFIX.length))
+        : null;
+
+      // set the value of the input matching the attribute, which may be in a fieldset
+      if (fieldsetId) {
+        const fieldsets = $(`fieldset.${fieldsetId}`);
+        for (let i = 0; i < fieldsets.length; i++) {
+          const fieldset = fieldsets['' + i];
+
+          setValue($(fieldset));
+        }
+      } else {
+        setValue($('body'));
+      }
+
+      function setValue(inputParent) {
+        // set input value
+        const inputName = ATTR_PREFIX + attributeName.toLowerCase();
+
+        console.log(`Updating input ${inputName} with value ${attributeValue}`);
+
+        let input = inputParent.find(`input[name='${inputName}'], select[name='${inputName}']`);
+        input.val([attributeValue]);
+
+        // set span text
+        let span = inputParent.find(`span[name='${ATTR_PREFIX}${attributeName.toLowerCase()}']`);
+        span.text(attributeValue);
+      }
+
+      // invoke event handlers
+      let eventName;
+      if (fieldsetId) {
+        const eventAttributeName = attributeName.substring(fieldsetId.length + 1);
+        eventName = `change:${fieldsetId}:${eventAttributeName}`;
+      } else {
+        eventName = `change:${attributeName}`;
+      }
+      eventName = eventName.toLowerCase();
+
+      if (eventHandlers.hasOwnProperty(eventName)) {
+        console.log('Invoking handlers for event: ' + eventName);
+
+        function getInputAttributeName(input) {
+          return input.attr('name').substring(ATTR_PREFIX.length);
+        }
