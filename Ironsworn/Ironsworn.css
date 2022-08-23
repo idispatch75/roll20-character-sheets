@@ -2511,6 +2511,7 @@
   background-color: #dfe0e2;
   border-bottom: 1px solid #4c4d4f;
   width: 100%;
+  line-height: 1.5em;
 }
 .charsheet .asset-write-in {
   margin-bottom: 4px;
@@ -2606,6 +2607,7 @@
 }
 .charsheet .asset-track-wrapper-wordy .asset-track-box {
   flex-direction: row;
+  max-width: none;
 }
 .charsheet .asset-track-box-display {
   font-size: 17px;

@@ -402,7 +402,9 @@ function instrumentInputs(root) {
 
       window.alert(JSON.stringify(templateSpec, undefined, 2));
       console.log(JSON.stringify(templateSpec, undefined, 2));
-      console.log(`&\{${templateDef}\}${rollSpec}`);
+      const rollValue = `&\{${templateDef}\}${rollSpec}`;
+      console.log(rollValue);
+      navigator.clipboard.writeText(rollValue);
     });
   });
 }
