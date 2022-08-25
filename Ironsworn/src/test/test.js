@@ -97,7 +97,9 @@ window.setAttrs = (attributeValues, isInit) => {
         console.log(`Updating input ${inputName}${attribute.sectionName ? ' in ' + attribute.sectionName + '_' + attribute.rowId : ''} with value ${attribute.newValue}`);
 
         let input = inputParent.find(`input[name='${inputName}'], input[data-attrname='${shortName}'], select[name='${inputName}'], textarea[name='${inputName}']`);
-        input.val([attribute.newValue]);
+        if (input.attr('type') != 'text' || !input.prop('disabled')) { // it seems roll20 explicitly does not update values of disabled text fields (perhaps linked to autocalc inputs needing to be disabled)
+          input.val([attribute.newValue]);
+        }
 
         // set span text
         let span = inputParent.find(`span[name='${inputName}']`);
