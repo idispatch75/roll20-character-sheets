@@ -215,10 +215,10 @@ div.assets
 fieldset.assets-summary~.repcontrol
   display none
 
-input.show-hide:checked ~ div.asset-ability.show-hide
-  display block
+input.asset-summary-ability-toggle:checked + .flex-container.hide-element
+  display flex
 
-input.show-hide.asset-ability:checked
+input.asset-summary-custom-ability-toggle:checked ~ .hide-element
   display block
 
 .asset-summary-header

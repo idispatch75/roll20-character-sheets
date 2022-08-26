@@ -146,12 +146,9 @@ mixin customSummaryBuilder
     .asset-summary-header
       span(name='attr_name')
     .flex-wrapper
-      .flex-container
-        +summaryAbilityView(1)
-      .flex-container
-        +summaryAbilityView(2)
-      .flex-container
-        +summaryAbilityView(3)
+      +summaryAbilityView(1)
+      +summaryAbilityView(2)
+      +summaryAbilityView(3)
     .flex-wrapper
       .flex-container
         each dropdownNumber in [ 0, 1, 2, 3, 4, 5, 6, 7]
@@ -180,13 +177,17 @@ mixin summaryAbilityView(value)
     type='checkbox'
     name=`attr_builder-ability-${value}-text`
   )
-  .hide-element(class=`builder-ability-${value}-text`)
-    input.asset-ability.show-hide.hide-element(
+  .flex-container.hide-element(class=`builder-ability-${value}-text`)
+    input.asset-summary-custom-ability-toggle.hide-element(
       type='checkbox'
       name=`attr_assetcheckbox_builder-ability-${value}`
+    )
+    input.asset-ability.hide-element(
+      type='checkbox'
+      checked
       disabled
     )
-    .asset-ability.show-hide.hide-element
+    .asset-ability.hide-element
       p
         span(name=`attr_builder-ability-${value}-text-area`)
   //- text + input
@@ -195,13 +196,17 @@ mixin summaryAbilityView(value)
     type='checkbox' 
     name=`attr_builder-ability-${value}-text-input`
   )
-  .hide-element(class=`builder-ability-${value}-text-input`)
-    input.asset-ability.show-hide.hide-element(
-      type='checkbox' 
-      name=`attr_assetcheckbox_builder-ability-${value}` 
+  .flex-container.hide-element(class=`builder-ability-${value}-text-input`)
+    input.asset-summary-custom-ability-toggle.hide-element(
+      type='checkbox'
+      name=`attr_assetcheckbox_builder-ability-${value}`
+    )
+    input.asset-ability.hide-element(
+      type='checkbox'
+      checked
       disabled
     )
-    .asset-ability.show-hide.hide-element
+    .asset-ability.hide-element
       p
         span(name=`attr_builder-ability-${value}-text-area`)
       input.border-bottom.no-border(type='text' name=`attr_builder-ability-${value}-custom-text-input` value='' readonly)

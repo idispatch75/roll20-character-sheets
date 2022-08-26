@@ -67,28 +67,32 @@ mixin pathSummaryBuilder()
           +track(asset.track, key, true)
 
 mixin summaryAbility(asset, number, key)
-  .flex-container
-    if asset.firstAbilityChecked && number == 1
-      input.asset-ability.show-hide.hide-element(
-        type='checkbox'
-        name=`attr_assetcheckbox_${asset.abilityId}${number}`
-        disabled
-        checked
-      )
-    else
-      input.asset-ability.show-hide.hide-element(
-        type='checkbox'
-        name=`attr_assetcheckbox_${asset.abilityId}${number}`
-        disabled
-      )
+  if asset.firstAbilityChecked && number == 1
+    input.asset-summary-ability-toggle.hide-element(
+      type='checkbox'
+      name=`attr_assetcheckbox_${asset.abilityId}${number}`
+      checked
+    )
+  else
+    input.asset-summary-ability-toggle.hide-element(
+      type='checkbox'
+      name=`attr_assetcheckbox_${asset.abilityId}${number}`
+    )
+  .flex-container.hide-element
+    //- note: disabled inputs are not updated by setAttrs, so this one cannot be used as an attr, it's just cosmetic
+    input.asset-ability(
+      type='checkbox'
+      checked
+      disabled
+    )
     - var translationAbility = `asset-${key}-ability-${number}`
-    .asset-ability.show-hide.hide-element
+    .asset-ability
       p(data-i18n=translationAbility)!=locals.translations[translationAbility]
       if asset.abilityWriteIn
         if asset.abilityWriteIn.number == number
           - var translationAbilityWriteIn = `asset-${key}-ability-${number}-write-in`
           .asset-ability-write-in(data-i18n=translationAbilityWriteIn)!=locals.translations[translationAbilityWriteIn]
-          input.border-bottom.no-border(type='text' name=`attr_asset${asset.abilityWriteIn.name}` value='')
+          input.border-bottom.no-border(type='text' name=`attr_asset${asset.abilityWriteIn.name}` value='' readonly)
       if asset.list && number == asset.list.ability
         - var currentListItem = 1
         ul

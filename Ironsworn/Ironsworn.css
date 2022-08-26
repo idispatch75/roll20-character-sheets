@@ -2498,10 +2498,10 @@
 .charsheet fieldset.assets-summary~.repcontrol {
   display: none;
 }
-.charsheet input.show-hide:checked ~ div.asset-ability.show-hide {
-  display: block;
+.charsheet input.asset-summary-ability-toggle:checked + .flex-container.hide-element {
+  display: flex;
 }
-.charsheet input.show-hide.asset-ability:checked {
+.charsheet input.asset-summary-custom-ability-toggle:checked ~ .hide-element {
   display: block;
 }
 .charsheet .asset-summary-header {
