@@ -29,12 +29,13 @@ html
           div(class="charactersheet tab-pane charsheet lang-en", style="display: block;")
             include ../app/pages/index
 
+  - var translations = locals.i18n ? JSON.stringify(locals.i18n) : "{}"
   script(type="text/javascript").
     i18next.init({
       lng: 'en',
       resources: {
         en: {
-          translation: !{JSON.stringify(locals.i18n)}
+          translation: !{translations}
         }
       },
       skipInterpolation: true

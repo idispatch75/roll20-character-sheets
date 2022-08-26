@@ -19,7 +19,12 @@ These will then generate a `dist` folder that will have the finished code. From 
 Roll20 does not build our pug/stylus code for when we merge. This needs to be done locally by running `npm run gulp:build` in the Ironsworn/src directory.
 
 ## Translations
-To keep our translation and fallback html content consistent. We are loading the translations into pug under the `locals` global variable. This allows us to call `locals.translations[<translation-key>]` to get our content. This way we can propagate changes and avoid hardcoding content.
+To keep our translation and fallback html content consistent. We are loading the translations into pug under the `locals` global variable.
+This allows us to call `locals.translations[<translation-key>]` to get our content.
+This way we can propagate changes and avoid hardcoding content.
+
+Beware when using `data-i18n`: it must not be used on elements that contain other elements, because the i18n framework will overwrite the text inside the localized element.
+This is typically relevant for labels enclosing hidden inputs: use a span inside the label to enclose the text and support data-i18n.
 
 ## Changelog
 You can handle a new version in:
@@ -64,7 +69,8 @@ You must specify the row ID, which must start with `rowid`, e.g. `repeating_prog
 To build for testing, use `npm run gulp:test-watch`.
 This compiles `test/Ironsworn.html` and `Ironsworn.css`.
 You can open `test/Ironsworn.html` in your browser.
-Beware that `gulp:test-watch` does not react to changes to `translation.json` (if you add it to the tracked files, recompilation triggers but changes are not taken into account. Probably related to how the pug plugin works).
+
+You can enable i18n by running the script specifying a language, which will be retrieved from the `translations` folder, e.g. `npm run gulp:test-watch --lang=fr`.
 
 ### Test the roll templates
 You must create a file `test/roll-template-specs.js` that contains the list of template variations you want to display at the same time (to test different input values at the same time).
@@ -109,7 +115,6 @@ You can copy/paste them to `roll-template-specs.js` if you make changes to one o
 
 ### Limitations
 - Rolls are not interpreted, you can check your macros on the site in the chat
-- No i18n
 
 ## Compatibility
 The sheet has been tested across multiple browsers and devices, show below in the compatibility matrix:
