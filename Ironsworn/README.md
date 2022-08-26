@@ -95,11 +95,10 @@ var rollSpecs = [
 ]; // don't forget the semi-colon
 ```
 The roll values must be enclosed in brackets (`[[5]]`): the system checks that you use the inline roll values properly in the template and throws an exception otherwise.  
-To build this list you should click on a roll button in the character sheet and copy/paste the resulting popup value (which is also output on the console), and replace the roll specs with the numeric values you want to test.
+To build this list you should click on a roll button in the character sheet, copy/paste the resulting value in the console, and replace the inline rolls with the numeric values you want to test.
 If an attribute value `@{myattribute}` appears as `@myattribute`, it means this attribute was not set by interacting with the sheet and may imply it does not exist all in the sheet (i.e. you made a mistake typing its name in the roll button).
 Otherwise the attribute's value is used.  
 The roll macro with replaced attributes is also output to the console and copied to the clipboard: you can test it in the site's chat.
-Beware that copying to clipboard will start to fail after a number of copy without paste (seems to be a security feature).
 
 To build for testing, use `npm run gulp:test-rt-watch`.
 This compiles `test/test-roll-templates.html` and `Ironsworn.css`.

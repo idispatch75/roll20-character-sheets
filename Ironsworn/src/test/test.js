@@ -278,6 +278,8 @@ $(document).ready(function () {
 
   // initialize attributes
   setAttrs(initAttributes, true);
+
+  $('.charsheet').localize();
 });
 
 /** Initializes the store with the current input values and sets up the "change" event. */
@@ -402,11 +404,11 @@ function instrumentInputs(root) {
         templateSpec.values[parts[0]] = parts[1];
       });
 
-      window.alert(JSON.stringify(templateSpec, undefined, 2));
       console.log(JSON.stringify(templateSpec, undefined, 2));
+
       const rollValue = `&\{${templateDef}\}${rollSpec}`;
       console.log(rollValue);
-      navigator.clipboard.writeText(rollValue).then(() => { });
+      navigator.clipboard.writeText(rollValue);
     });
   });
 }
