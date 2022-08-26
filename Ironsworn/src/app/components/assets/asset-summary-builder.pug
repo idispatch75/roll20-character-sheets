@@ -36,7 +36,7 @@ mixin companionSummaryBuilder()
                 .asset-track-box-display=value
               else
                 .asset-track-box-display=`+ ${value}`
-              input(type='radio' name=`attr_assettrack_${key}_summary` value=`${value}`)
+              input(type='radio' name=`attr_assettrack_${key}` value=`${value}`)
 
 mixin ritualSummaryBuilder()
   - var assetType = 'ritual'

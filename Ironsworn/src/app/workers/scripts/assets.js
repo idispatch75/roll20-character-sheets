@@ -68,17 +68,3 @@ on('change:repeating_assets:track-dropdown', function (values) {
   });
 });
 
-on('change:repeating_assets', function (eventInfo) {
-  // synchronize asset tracks between Assets page and Assets summary in Moves
-  const summarySuffix = '_summary';
-  const attribute = eventInfo.sourceAttribute;
-  if (attribute.includes('assettrack') || attribute.includes('custom-asset-track')) {
-    const syncedAttribute = attribute.endsWith(summarySuffix)
-      ? attribute.slice(0, -summarySuffix.length)
-      : attribute + summarySuffix;
-
-    setAttrs({
-      [syncedAttribute]: eventInfo.newValue
-    });
-  }
-});

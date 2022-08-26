@@ -41,8 +41,7 @@ mixin rollAskTheOracle()
       data-i18n-title='ask-the-oracle-almost-certain-result'
     ) ++
       button.hide-element(
-        type='roll' 
-        title='@{rollalmostcertain}' 
+        type='roll'
         name='rollalmostcertain' 
         value='&{template:ironsworn_oracles} {{header=^{ask-the-oracle-almost-certain-result}}} {{almostCertain=[[d100]]}}')
     label.move-roll-shortcut-ask-the-oracle-likely(
@@ -51,13 +50,11 @@ mixin rollAskTheOracle()
     ) +
       button.hide-element(
         type='roll' 
-        title='@{rolllikely}' 
         name='rolllikely' 
         value='&{template:ironsworn_oracles} {{header=^{ask-the-oracle-likely-result}}} {{likely=[[d100]]}}')
     label.move-roll-shortcut-ask-the-oracle-fiftyfifty 50/50
       button.hide-element(
         type='roll'
-        title='@{rollfiftyfifty}'
         name='rollfiftyfifty'
         value='&{template:ironsworn_oracles} {{header=50/50}} {{fiftyFifty=[[d100]]}}')
     label.move-roll-shortcut-ask-the-oracle-unlikely(
@@ -66,7 +63,6 @@ mixin rollAskTheOracle()
     ) -
       button.hide-element(
         type='roll'
-        title='@{rollunlikely}' 
         name='rollunlikely' 
         value='&{template:ironsworn_oracles} {{header=^{ask-the-oracle-unlikely-result}}} {{unlikely=[[d100]]}}')
     label.move-roll-shortcut-ask-the-oracle-small-chance(
@@ -74,7 +70,6 @@ mixin rollAskTheOracle()
       data-i18n-title='ask-the-oracle-small-chance-result'
     ) --
       button.hide-element(
-        type='roll' 
-        title='@{rollsmallchance}' 
+        type='roll'
         name='rollsmallchance' 
         value='&{template:ironsworn_oracles} {{header=^{ask-the-oracle-small-chance-result}}} {{smallChance=[[d100]]}}')

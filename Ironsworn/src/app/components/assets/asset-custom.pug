@@ -5,13 +5,13 @@ mixin builderTitles(parent, child)
     value=''
   )
 
-mixin assetTrackBox(parent, value, isSummary)
+mixin assetTrackBox(parent, value)
   .asset-track-box
     if value == 0
       .asset-track-box-display 0
     else
       .asset-track-box-display='+ ' + value
-    input(type='radio' name=`attr_custom-asset-track-${parent}${isSummary ? '_summary' : ''}` value=`${value}`)
+    input(type='radio' name=`attr_custom-asset-track-${parent}` value=`${value}`)
 
 mixin abilityView(value)
   input(
@@ -138,7 +138,7 @@ mixin customAssets
                 .asset-track-wrapper.custom-track
                   - var currentBox = 0
                   while currentBox <= dropdownNumber
-                    +assetTrackBox(dropdownNumber, currentBox++, false)
+                    +assetTrackBox(dropdownNumber, currentBox++)
 
 mixin customSummaryBuilder
   input.asset-summary-custom.hide-element(type='checkbox' name='attr_assetcustom')
@@ -168,7 +168,7 @@ mixin customSummaryBuilder
               .asset-track-wrapper.custom-track
                 - var currentBox = 0
                 while currentBox <= dropdownNumber
-                  +assetTrackBox(dropdownNumber, currentBox++, true)
+                  +assetTrackBox(dropdownNumber, currentBox++)
 
 mixin summaryAbilityView(value)
   //- text only

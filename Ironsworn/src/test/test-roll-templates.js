@@ -124,11 +124,13 @@ $(document).ready(() => {
             }
           }
         }
+
       }
     });
 
     const container = $(`<div class="sheet-rolltemplate-${spec.templateId}" style="margin-bottom: 10px"></div>`)
       .append(Mustache.render(template, { ...spec.values, ...computedValues }, undefined, { escape: _ => _ }));
+    localize(container);
     $('#rolls').append(container);
   });
 });

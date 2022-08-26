@@ -193,10 +193,11 @@ function createSectionRow(repContainer, rowId) {
   repItem.append(fieldset.html());
 
   // make attribute names unique for radio button to allow proper radio behavior
+  const radioId = generateRowID();
   repItem.find(`input[name^="${ATTR_PREFIX}"][type="radio"]`).each(function () {
     const input = $(this);
     const attributeName = getInputAttributeName(input);
-    input.attr('name', `${ATTR_PREFIX}${rowId}_${sectionName}_${attributeName}`);
+    input.attr('name', `${ATTR_PREFIX}${radioId}_${sectionName}_${attributeName}`);
     input.attr('data-attrname', attributeName);
   });
 
@@ -279,7 +280,8 @@ $(document).ready(function () {
   // initialize attributes
   setAttrs(initAttributes, true);
 
-  $('.charsheet').localize();
+  // localize some i18n
+  localize($('.charsheet'));
 });
 
 /** Initializes the store with the current input values and sets up the "change" event. */

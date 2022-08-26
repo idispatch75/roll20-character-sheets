@@ -64,13 +64,14 @@ const initAttributes = {
 }; // don't forget the semi-colon
 ```
 You can also create repeating section items by initializing at least one of their attributes.
-You must specify the row ID, which must start with `rowid`, e.g. `repeating_progress_rowid0012_name`.
+You must specify the row ID, which must start with `rowid`, e.g. `repeating_progress_rowid0012_myattributename`.
 
 To build for testing, use `npm run gulp:test-watch`.
 This compiles `test/Ironsworn.html` and `Ironsworn.css`.
 You can open `test/Ironsworn.html` in your browser.
 
 You can enable i18n by running the script specifying a language, which will be retrieved from the `translations` folder, e.g. `npm run gulp:test-watch --lang=fr`.
+But remember that you must not commit the files in this folder, and that you must rerun the script to take changes into account.
 
 ### Test the roll templates
 You must create a file `test/roll-template-specs.js` that contains the list of template variations you want to display at the same time (to test different input values at the same time).
@@ -101,8 +102,8 @@ var rollSpecs = [
 ]; // don't forget the semi-colon
 ```
 The roll values must be enclosed in brackets (`[[5]]`): the system checks that you use the inline roll values properly in the template and throws an exception otherwise.  
-To build this list you should click on a roll button in the character sheet, copy/paste the resulting value in the console, and replace the inline rolls with the numeric values you want to test.
-If an attribute value `@{myattribute}` appears as `@myattribute`, it means this attribute was not set by interacting with the sheet and may imply it does not exist all in the sheet (i.e. you made a mistake typing its name in the roll button).
+To build this list you should click on a roll button in the character sheet, copy/paste the resulting value from the console, and replace the inline rolls with the numeric values you want to test.
+If an attribute value `@{myattribute}` appears as `@myattribute`, it means this attribute was not set by interacting with the sheet and may imply it does not exist at all in the sheet (i.e. you made a mistake typing its name in the roll button).
 Otherwise the attribute's value is used.  
 The roll macro with replaced attributes is also output to the console and copied to the clipboard: you can test it in the site's chat.
 
@@ -113,8 +114,11 @@ You can open `test/test-roll-templates.html` in your browser and resize it to ch
 There is a `test/test-roll-templates-specs` directory that contains specs for the current templates.
 You can copy/paste them to `roll-template-specs.js` if you make changes to one of the roll template.
 
+i18n is also supported.
+
 ### Limitations
 - Rolls are not interpreted, you can check your macros on the site in the chat
+- Partial support of i18n: data-i18n, data-i18n-placeholder, data-i18n-title
 
 ## Compatibility
 The sheet has been tested across multiple browsers and devices, show below in the compatibility matrix:
