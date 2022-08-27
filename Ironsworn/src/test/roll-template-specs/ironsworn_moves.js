@@ -3,7 +3,7 @@ var rollSpecs = [
     "templateId": "ironsworn_moves",
     "display": true,
     "values": {
-      "header": "Learn From Your Failures",
+      "header": "^{move-title-compel}",
       "name": "Hornst",
       "action": "[[5]]",
       "negate1": "[[4]]",
@@ -24,7 +24,7 @@ var rollSpecs = [
     "templateId": "ironsworn_moves",
     "display": true,
     "values": {
-      "header": "roll +spirit",
+      "header": "^{roll-btn} +^{resource-health}",
       "name": "@character_name",
       "action": "[[5]]",
       "negate1": "[[4]]",
