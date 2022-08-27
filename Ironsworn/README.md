@@ -70,7 +70,7 @@ To build for testing, use `npm run gulp:test-watch`.
 This compiles `test/Ironsworn.html` and `Ironsworn.css`.
 You can open `test/Ironsworn.html` in your browser.
 
-You can enable i18n by running the script specifying a language, which will be retrieved from the `translations` folder, e.g. `npm run gulp:test-watch --lang=fr`.
+You can enable i18n by running the script specifying a language, which will be retrieved from the `translations` folder, e.g. `npm run gulp:test-watch -- --lang fr`.
 But remember that you must not commit the files in this folder, and that you must rerun the script to take changes into account.
 
 ### Test the roll templates
