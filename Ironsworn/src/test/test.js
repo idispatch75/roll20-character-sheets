@@ -358,6 +358,10 @@ function instrumentInputs(root) {
       return;
     }
 
+    // add roll20 classes
+    button.addClass('btn');
+    button.addClass('ui-draggable');
+
     button.click(() => {
       const firstSpaceIndex = button.val().indexOf(' ');
       let templateDef = button.val().substring(2, firstSpaceIndex - 1);
