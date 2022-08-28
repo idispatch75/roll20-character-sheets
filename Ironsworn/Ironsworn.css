@@ -2947,23 +2947,24 @@
 .sheet-rolltemplate-moves_oracles .sheet-subheader,
 .sheet-rolltemplate-delve_oracles .sheet-subheader {
   line-height: 1.5em;
-  font-weight: 900;
+  font-weight: bold;
   text-align: left;
   padding: 0.4em 1em 0.4em 1em;
   background-color: #23222b;
   text-transform: uppercase;
+  font-family: 'Montserrat', Arial, sans-serif;
 }
 .sheet-rolltemplate-ironsworn_oracles .sheet-subfooter,
 .sheet-rolltemplate-moves_oracles .sheet-subfooter,
 .sheet-rolltemplate-delve_oracles .sheet-subfooter {
   line-height: 1.5em;
-  font-weight: 900;
+  font-weight: bold;
   text-align: left;
   padding: 0.4em 0em 0.4em 0em;
   background-color: #403f4b;
-  font-style: italic;
   width: 100%;
   text-align: center;
+  font-family: 'Montserrat', Arial, sans-serif;
 }
 .sheet-rolltemplate-ironsworn_oracles .sheet-result-body,
 .sheet-rolltemplate-moves_oracles .sheet-result-body,
@@ -3024,21 +3025,22 @@
 .sheet-rolltemplate-ironsworn_moves .sheet-subheader,
 .sheet-rolltemplate-ironsworn_progress .sheet-subheader {
   line-height: 1.5em;
-  font-weight: 900;
+  font-weight: bold;
   text-align: left;
   padding: 0.4em 1em 0.4em 1em;
   background-color: #23222b;
   text-transform: uppercase;
+  font-family: 'Montserrat', Arial, sans-serif;
 }
 .sheet-rolltemplate-ironsworn_moves .sheet-subfooter,
 .sheet-rolltemplate-ironsworn_progress .sheet-subfooter {
   line-height: 1.5em;
-  font-weight: 900;
+  font-weight: bold;
   text-align: left;
   padding: 0.4em 0em 0.4em 0em;
   background-color: #403f4b;
-  font-style: italic;
   width: 100%;
+  font-family: 'Montserrat', Arial, sans-serif;
 }
 .sheet-rolltemplate-ironsworn_moves .sheet-result-body,
 .sheet-rolltemplate-ironsworn_progress .sheet-result-body {
