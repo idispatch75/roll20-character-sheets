@@ -32,7 +32,7 @@ You can handle a new version `X.Y.Z` in:
 - `src/app/workers/scripts/pages.js`: add a new value `changelog_X.Y.Z` to `on('change:close_changelog')`
 - `src/app/pages/index.pug`: update the top level `input.changelog` with `attr_changelog_X.Y.Z` and add a new changelog-entry with `attr_changelog_X.Y.Z`
 
-Older versions should probably be removed after some time.
+Older versions should probably be removed after some time since newly opened sheets will display the full log.
 
 ## Tools
 - [Visual Studio Code](https://code.visualstudio.com/download)
