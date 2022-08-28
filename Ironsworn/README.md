@@ -27,10 +27,12 @@ Beware when using `data-i18n`: it must not be used on elements that contain othe
 This is typically relevant for labels enclosing hidden inputs: use a span inside the label to enclose the text and support data-i18n.
 
 ## Changelog
-You can handle a new version in:
-- `src/package.json`: edit the `version` property
-- `src/app/workers/scripts/pages.js`: change the value of `changelog_X.Y.Z` to match
-- `src/app/pages/index.pug`: change the value of `attr_changelog_X.Y.Z` to match and add a new changelog entry
+You can handle a new version `X.Y.Z` in:
+- `src/package.json`: set the `version` property to `X.Y.Z`
+- `src/app/workers/scripts/pages.js`: add a new value `changelog_X.Y.Z` to `on('change:close_changelog')`
+- `src/app/pages/index.pug`: update the top level `input.changelog` with `attr_changelog_X.Y.Z` and add a new changelog-entry with `attr_changelog_X.Y.Z`
+
+Older versions should probably be removed after some time.
 
 ## Tools
 - [Visual Studio Code](https://code.visualstudio.com/download)

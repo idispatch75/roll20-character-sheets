@@ -492,7 +492,8 @@
   background: #ccc;
   transition: 0.5s ease;
 }
-.charsheet input.changelog:checked ~ div.changelog {
+.charsheet input.changelog:checked + div.changelog,
+.charsheet input.changelog-entry:checked + div.changelog-entry {
   display: none;
 }
 .charsheet .modes {
