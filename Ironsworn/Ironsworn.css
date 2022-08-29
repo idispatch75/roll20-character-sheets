@@ -3019,6 +3019,10 @@
   background: #403f4b;
   border: 1px solid #000;
 }
+.sheet-rolltemplate-ironsworn_progress .sheet-roll-outcome-main,
+.sheet-rolltemplate-ironsworn_moves .sheet-roll-outcome-main {
+  text-transform: uppercase;
+}
 .sheet-rolltemplate-ironsworn_moves .sheet-subheader,
 .sheet-rolltemplate-ironsworn_progress .sheet-subheader {
   line-height: 1.5em;
