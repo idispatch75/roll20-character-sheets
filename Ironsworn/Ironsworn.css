@@ -1535,14 +1535,10 @@
 .charsheet .roll-show {
   padding: 0 !important;
   font-size: 20px !important;
-  margin: 0 !important;
   height: auto;
 }
 .charsheet .roll-show:hover {
   color: #fff;
-}
-.charsheet .roll-viewer .roll-show {
-  vertical-align: text-bottom;
 }
 .charsheet .move-list {
   padding: 0;
