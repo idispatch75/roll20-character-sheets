@@ -50,7 +50,7 @@ mixin ritualSummaryBuilder()
           each ability in [ 1, 2, 3 ]
             +summaryAbility(asset, ability, key)
         if asset.track
-          +track(asset.track, key, true)
+          +track(asset.track, key)
 
 mixin pathSummaryBuilder()
   - var assetType = 'path'
@@ -64,7 +64,7 @@ mixin pathSummaryBuilder()
           each ability in [ 1, 2, 3 ]
             +summaryAbility(asset, ability, key)
         if asset.track
-          +track(asset.track, key, true)
+          +track(asset.track, key)
 
 mixin summaryAbility(asset, number, key)
   if asset.firstAbilityChecked && number == 1

@@ -1540,9 +1540,6 @@
 .charsheet .roll-show:hover {
   color: #fff;
 }
-.charsheet .roll-viewer .roll-show {
-  vertical-align: text-bottom;
-}
 .charsheet .move-list {
   padding: 0;
   display: flex;
@@ -1751,112 +1748,12 @@
   background: #ccc;
   transition: 0.5s ease;
 }
-<<<<<<< HEAD
-.charsheet .move-roll-shortcut-title::before,
-.charsheet .move-roll-shortcut-title::after {
-  content: "\a0";
-}
-.charsheet .move-roll-shortcut-pay-the-price {
-=======
-.charsheet .move-roll-stat-modifier {
->>>>>>> origin/master
-  text-align: center;
-  cursor: pointer;
-  width: auto;
-  margin: 0px;
-  padding: 0px;
-<<<<<<< HEAD
-  grid-row: 2/span 1;
-  grid-column: 1/span 2;
-  padding: 5px;
-}
-.charsheet .move-roll-shortcut-pay-the-price:hover {
-  background: #ccc;
-  transition: 0.5s ease;
-}
-.charsheet .move-roll-shortcut-ask-the-oracle-almostcertain {
-  text-align: center;
-  cursor: pointer;
-  width: auto;
-  margin: 0px;
-  padding: 0px;
-  line-height: 1.4em;
-  grid-row: 2/span 1;
-  grid-column: 1/span 1;
-  border-bottom: 2px solid #4c4d4f;
-  border-right: 2px solid #4c4d4f;
-}
-.charsheet .move-roll-shortcut-ask-the-oracle-almostcertain:hover {
-  background: #ccc;
-  transition: 0.5s ease;
-}
-.charsheet .move-roll-shortcut-ask-the-oracle-likely {
-  text-align: center;
-  cursor: pointer;
-  width: auto;
-  margin: 0px;
-  padding: 0px;
-  line-height: 1.4em;
-  grid-row: 2/span 1;
-  grid-column: 2/span 1;
-  border-bottom: 2px solid #4c4d4f;
-}
-.charsheet .move-roll-shortcut-ask-the-oracle-likely:hover {
-  background: #ccc;
-  transition: 0.5s ease;
-}
-.charsheet .move-roll-shortcut-ask-the-oracle-fiftyfifty {
-  text-align: center;
-  cursor: pointer;
-  width: auto;
-  margin: 0px;
-  padding: 0px;
-  line-height: 1.4em;
-  grid-row: 3/span 1;
-  grid-column: 1/span 2;
-  border-bottom: 2px solid #4c4d4f;
-}
-.charsheet .move-roll-shortcut-ask-the-oracle-fiftyfifty:hover {
-  background: #ccc;
-  transition: 0.5s ease;
-}
-.charsheet .move-roll-shortcut-ask-the-oracle-unlikely {
-  text-align: center;
-  cursor: pointer;
-  width: auto;
-  margin: 0px;
-  padding: 0px;
-  line-height: 1.4em;
-  grid-row: 4/span 1;
-  grid-column: 1/span 1;
-  border-right: 2px solid #4c4d4f;
-}
-.charsheet .move-roll-shortcut-ask-the-oracle-unlikely:hover {
-  background: #ccc;
-  transition: 0.5s ease;
-}
-.charsheet .move-roll-shortcut-ask-the-oracle-small-chance {
-  text-align: center;
-  cursor: pointer;
-  width: auto;
-  margin: 0px;
-  padding: 0px;
-  line-height: 1.4em;
-  grid-row: 4/span 1;
-  grid-column: 2/span 1;
-}
-.charsheet .move-roll-shortcut-ask-the-oracle-small-chance:hover {
-  background: #ccc;
-  transition: 0.5s ease;
-}
 .charsheet .move-roll-stat-modifier {
   text-align: center;
   cursor: pointer;
   width: auto;
   margin: 0px;
   padding: 0px;
-=======
->>>>>>> origin/master
   padding: 0em 0.4em 0em 0.4em;
   line-height: 1.4em;
 }
@@ -3045,29 +2942,18 @@
 .sheet-rolltemplate-moves_oracles .sheet-subheader,
 .sheet-rolltemplate-delve_oracles .sheet-subheader {
   line-height: 1.5em;
-<<<<<<< HEAD
   font-weight: bold;
-=======
-  font-weight: 900;
->>>>>>> origin/master
   text-align: left;
   padding: 0.4em 1em 0.4em 1em;
   background-color: #23222b;
   text-transform: uppercase;
-<<<<<<< HEAD
   font-family: 'Montserrat', Arial, sans-serif;
-=======
->>>>>>> origin/master
 }
 .sheet-rolltemplate-ironsworn_oracles .sheet-subfooter,
 .sheet-rolltemplate-moves_oracles .sheet-subfooter,
 .sheet-rolltemplate-delve_oracles .sheet-subfooter {
   line-height: 1.5em;
-<<<<<<< HEAD
   font-weight: bold;
-=======
-  font-weight: 900;
->>>>>>> origin/master
   text-align: left;
   padding: 0.4em 0em 0.4em 0em;
   background-color: #403f4b;
@@ -3132,41 +3018,31 @@
   background: #403f4b;
   border: 1px solid #000;
 }
-.sheet-rolltemplate-ironsworn_progress .sheet-roll-outcome-main,
-.sheet-rolltemplate-ironsworn_moves .sheet-roll-outcome-main {
-  text-transform: uppercase;
-}
 .sheet-rolltemplate-ironsworn_moves .sheet-subheader,
 .sheet-rolltemplate-ironsworn_progress .sheet-subheader {
   line-height: 1.5em;
-<<<<<<< HEAD
   font-weight: bold;
-=======
-  font-weight: 900;
->>>>>>> origin/master
   text-align: left;
   padding: 0.4em 1em 0.4em 1em;
   background-color: #23222b;
   text-transform: uppercase;
-<<<<<<< HEAD
   font-family: 'Montserrat', Arial, sans-serif;
-=======
->>>>>>> origin/master
 }
 .sheet-rolltemplate-ironsworn_moves .sheet-subfooter,
 .sheet-rolltemplate-ironsworn_progress .sheet-subfooter {
   line-height: 1.5em;
-<<<<<<< HEAD
   font-weight: bold;
-=======
-  font-weight: 900;
->>>>>>> origin/master
   text-align: left;
   padding: 0.4em 0em 0.4em 0em;
   background-color: #403f4b;
   font-style: italic;
   width: 100%;
   font-family: 'Montserrat', Arial, sans-serif;
+}
+.sheet-rolltemplate-ironsworn_progress .sheet-subfooter.sheet-roll-outcome-main,
+.sheet-rolltemplate-ironsworn_moves .sheet-subfooter.sheet-roll-outcome-main {
+  text-transform: uppercase;
+  font-style: normal;
 }
 .sheet-rolltemplate-ironsworn_moves .sheet-result-body,
 .sheet-rolltemplate-ironsworn_progress .sheet-result-body {

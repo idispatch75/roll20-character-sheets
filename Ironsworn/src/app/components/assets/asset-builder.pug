@@ -64,12 +64,11 @@ mixin description(asset, type, key)
         - var translationDesc = `asset-description-${key}`
         .asset-description-text(data-i18n=translationDesc)!=locals.translations[translationDesc]
 
-mixin track(number, name, isSummary)
+mixin track(number, name)
   .asset-track-wrapper
     - 
       var currentTrack = 0
       var transformedName = name.replace('-', '')
-      if (isSummary) transformedName = transformedName + '_summary'
     while currentTrack <= number
       .asset-track-box
         if currentTrack == 0
@@ -143,7 +142,7 @@ mixin ritualBuilder
           each ability in [ 1, 2, 3 ]
             +ability(asset, ability, key)
         if asset.track
-          +track(asset.track, key, false)
+          +track(asset.track, key)
 
 mixin pathBuilder
   - var assetType = 'path'
@@ -159,4 +158,4 @@ mixin pathBuilder
           each ability in [ 1, 2, 3 ]
             +ability(asset, ability, key)
         if asset.track
-          +track(asset.track, key, false)
+          +track(asset.track, key)

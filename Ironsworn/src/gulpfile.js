@@ -29,8 +29,6 @@ gulp.task('watch', gulp.series(['css', 'html'], () => {
 gulp.task('build', gulp.series(['css', 'html']))
 
 gulp.task('test-html', () => {
-  const i18n = lang ? require(`../translations/${lang}.json`) : undefined
-
   return gulp.src('./test/Ironsworn.pug')
     .pipe(pug({
       pretty: true,
@@ -39,7 +37,7 @@ gulp.task('test-html', () => {
     .pipe(gulp.dest('./test'))
 })
 
-gulp.task('test-rt-watch', gulp.series(['css', 'test-rt'], () => {
+gulp.task('test-watch', gulp.series(['css', 'test-html'], () => {
   gulp.watch('./app/**/*.styl', gulp.series(['css']))
   gulp.watch(['./app/**/*.pug', './app/**/*.js', './test/**/*.pug', './test/**/*.js'], gulp.series(['test-html']))
 }))
