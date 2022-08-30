@@ -31,7 +31,7 @@ mixin character(resources)
     div.resource
       h2.resource-title(data-i18n='character-name')=locals.translations['character-name']
       div.health-status-box
-        input(type='text' class="resource-value character-name" name="attr_character_name" placeholder='Character Name' data-i18n-placeholder='character-name')
+        input(type='text' class="resource-value character-name" name="attr_character_name" placeholder=locals.translations['character-name'] data-i18n-placeholder='character-name')
 
     each resource in resources
       +dropdowns(resource)
