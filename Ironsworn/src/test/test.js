@@ -45,7 +45,7 @@ let currentRepeatingContext = undefined; // stores the repeating section info wh
 window.getAttrs = (attributeNames, fn) => {
   const values = {};
   for (attributeName of attributeNames) {
-    const attribute = createAttribute(attributeName);
+    const attribute = buildAttribute(attributeName);
     values[attributeName] = attributeStore.getValue(attribute.fullName);
   }
 
@@ -57,7 +57,7 @@ window.setAttrs = (attributeValues, isInit) => {
 
   for (const attributeName in attributeValues) {
     // build attribute
-    const attribute = createAttribute(attributeName);
+    const attribute = buildAttribute(attributeName);
     attribute.currentValue = attributeStore.getValue(attribute.fullName);
     attribute.newValue = attributeValues[attributeName];
 
@@ -98,6 +98,12 @@ window.setAttrs = (attributeValues, isInit) => {
 
         let input = inputParent.find(`input[name='${inputName}'], input[data-attrname='${shortName}'], select[name='${inputName}'], textarea[name='${inputName}'],
           input[name='${inputName.toLowerCase()}'], input[data-attrname='${shortName.toLowerCase()}'], select[name='${inputName.toLowerCase()}'], textarea[name='${inputName.toLowerCase()}']`);
+
+        if (currentRepeatingContext?.skippedInputUpdate === attribute.fullName) { // roll20 does not sync radio inputs in sections with same name
+          console.log(`Skipped radio input update for ${inputName}`);
+          return;
+        }
+
         if (!input.prop('disabled')) { // it seems roll20 explicitly does not update values of disabled inputs (perhaps linked to autocalc inputs needing to be disabled)
           input.val([attribute.newValue]);
         }
@@ -151,7 +157,7 @@ window.setAttrs = (attributeValues, isInit) => {
   }
 };
 
-function createAttribute(attributeName) {
+function buildAttribute(attributeName) {
   // supported names are:
   // <attribute_name>
   // <sectionName>_<attributeShortname> with sectionName = repeating_<any>
@@ -300,7 +306,7 @@ function instrumentInputs(root) {
     }
 
     // init the attributes values in the store
-    let attributeName = input.attr('data-attrname') ?? getInputAttributeName(input);
+    let attributeName = getInputAttributeName(input);
 
     const repItem = input.parents('.repitem');
     if (repItem.length > 0) {
@@ -330,7 +336,7 @@ function instrumentInputs(root) {
       }
 
       // store the value
-      let attributeName = input.attr('data-attrname') ?? getInputAttributeName(input);
+      let attributeName = getInputAttributeName(input);
 
       const repItem = input.parents('.repitem');
       if (repItem.length > 0) {
@@ -341,6 +347,9 @@ function instrumentInputs(root) {
 
         attributeName = `${currentRepeatingContext.sectionName}_${currentRepeatingContext.rowId}_${attributeName}`;
 
+        if (input.attr('type') == 'radio') {  // roll20 does not sync radio inputs in sections with same name
+          currentRepeatingContext.skippedInputUpdate = attributeName;
+        }
       } else {
         currentRepeatingContext = undefined;
       }
@@ -422,5 +431,5 @@ function instrumentInputs(root) {
 }
 
 function getInputAttributeName(input) {
-  return input.attr('name').substring(ATTR_PREFIX.length);
+  return input.attr('data-attrname') ?? input.attr('name').substring(ATTR_PREFIX.length);
 }
