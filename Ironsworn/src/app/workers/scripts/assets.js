@@ -68,3 +68,17 @@ on('change:repeating_assets:track-dropdown', function (values) {
   });
 });
 
+on('change:repeating_assets', function (eventInfo) {
+  // sync assets and summary tracks
+  const attrName = eventInfo.sourceAttribute
+  if (attrName.includes('_assettrack_') || attrName.includes('_custom-asset-track-')) {
+    const summarySuffix = '_summary';
+    const syncedAttribute = attrName.endsWith(summarySuffix)
+      ? attrName.substring(0, attrName.length - summarySuffix.length)
+      : attrName + summarySuffix;
+    setAttrs({
+      [syncedAttribute]: eventInfo.newValue
+    });
+  }
+});
+
